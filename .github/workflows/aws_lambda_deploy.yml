@@ -29,4 +29,5 @@ jobs:
           aws_region: ${{ secrets.AWS_REGION }}
           function_name: lambda_go_test_1
           source: ./.aws-sam/build/HelloWorldFunction/hello-world
+          handler: hello-world
           runtime: go1.x
