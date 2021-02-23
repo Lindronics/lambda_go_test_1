@@ -1,13 +1,15 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"hello-world/data"
 	"net/http"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"gopkg.in/go-playground/validator.v9"
 )
 
 var (
@@ -22,27 +24,64 @@ var (
 )
 
 func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	resp, err := http.Get(DefaultHTTPGetAddress)
+
+	switch request.HTTPMethod {
+	case http.MethodGet:
+		return get(request)
+	case http.MethodPost:
+		return post(request)
+	default:
+		return clientError(http.StatusMethodNotAllowed)
+	}
+}
+
+func clientError(status int) (events.APIGatewayProxyResponse, error) {
+	return events.APIGatewayProxyResponse{
+		StatusCode: status,
+		Body:       http.StatusText(status),
+	}, nil
+}
+
+func serverError(err error) (events.APIGatewayProxyResponse, error) {
+	// errorLogger.Println(err.Error())
+
+	return events.APIGatewayProxyResponse{
+		StatusCode: http.StatusInternalServerError,
+		Body:       http.StatusText(http.StatusInternalServerError),
+	}, nil
+}
+
+func notImplementedError() events.APIGatewayProxyResponse {
+	return events.APIGatewayProxyResponse{
+		StatusCode: http.StatusNotImplemented,
+		Body:       http.StatusText(http.StatusNotImplemented),
+	}
+}
+
+func get(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	return notImplementedError(), nil
+}
+
+func post(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+
+	input := new(data.Name)
+	err := json.Unmarshal([]byte(request.Body), &input)
 	if err != nil {
-		return events.APIGatewayProxyResponse{}, err
+		println("Can't unmarshal request!")
+		panic(err)
 	}
+	fmt.Printf("First name: %s, Last name: %s\n", input.FirstName, input.LastName)
 
-	if resp.StatusCode != 200 {
-		return events.APIGatewayProxyResponse{}, ErrNon200Response
-	}
-
-	ip, err := ioutil.ReadAll(resp.Body)
+	validate := validator.New()
+	err = validate.Struct(input)
 	if err != nil {
-		return events.APIGatewayProxyResponse{}, err
-	}
-
-	if len(ip) == 0 {
-		return events.APIGatewayProxyResponse{}, ErrNoIP
+		println("Invalid input!")
+		panic(err)
 	}
 
 	return events.APIGatewayProxyResponse{
-		Body:       fmt.Sprintf("Hello, %v", string(ip)),
-		StatusCode: 200,
+		StatusCode: http.StatusCreated,
+		Body:       "{\"message\": \"success\"}",
 	}, nil
 }
 
