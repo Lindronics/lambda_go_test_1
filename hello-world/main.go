@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"hello-world/data"
 	"net/http"
 
@@ -67,16 +66,13 @@ func post(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse
 	input := new(data.Name)
 	err := json.Unmarshal([]byte(request.Body), &input)
 	if err != nil {
-		println("Can't unmarshal request!")
-		panic(err)
+		return clientError(http.StatusBadRequest)
 	}
-	fmt.Printf("First name: %s, Last name: %s\n", input.FirstName, input.LastName)
 
 	validate := validator.New()
 	err = validate.Struct(input)
 	if err != nil {
-		println("Invalid input!")
-		panic(err)
+		return clientError(http.StatusBadRequest)
 	}
 
 	return events.APIGatewayProxyResponse{
