@@ -24,12 +24,19 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
     - name: Deploy to AWS
-      uses: appleboy/lambda-action@v0.0.8
+      uses: TractorZoom/sam-cli-action@master
       with:
-          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws_region: ${{ secrets.AWS_REGION }}
-          function_name: lambda_go_test_1
-          source: ./.aws-sam/build/HelloWorldFunction/hello-world
-          handler: hello-world
-          runtime: go1.x
+        sam_command: "deploy"
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
+      # uses: appleboy/lambda-action@v0.0.8
+      # with:
+      #     aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws_region: ${{ secrets.AWS_REGION }}
+      #     function_name: lambda_go_test_1
+      #     source: ./.aws-sam/build/HelloWorldFunction/hello-world
+      #     handler: hello-world
+      #     runtime: go1.x
