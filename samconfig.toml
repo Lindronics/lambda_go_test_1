@@ -1,0 +1,7 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "lambda-go-test-1"
+s3_prefix = "lambda-go-test-1"
+capabilities = "CAPABILITY_IAM"
