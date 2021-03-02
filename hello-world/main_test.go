@@ -2,13 +2,28 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"hello-world/data"
 	"net/http"
+	"os"
 	"testing"
 
 	"github.com/aws/aws-lambda-go/events"
 	"gopkg.in/go-playground/validator.v9"
 )
+
+func TestMain(m *testing.M) {
+	rc := m.Run()
+
+	if rc == 0 && testing.CoverMode() != "" {
+		c := testing.Coverage()
+		if c < 0.8 {
+			fmt.Println("Tests passed but coverage failed at", c)
+			rc = -1
+		}
+	}
+	os.Exit(rc)
+}
 
 func TestHandler(t *testing.T) {
 
