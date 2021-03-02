@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"hello-world/data"
 	"net/http"
 
@@ -77,7 +78,7 @@ func post(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse
 
 	return events.APIGatewayProxyResponse{
 		StatusCode: http.StatusCreated,
-		Body:       "{\"message\": \"success\"}",
+		Body:       fmt.Sprintf("{\"message\": \"Hello, %s %s\"}", input.FirstName, input.LastName),
 	}, nil
 }
 

@@ -6,3 +6,8 @@ type Name struct {
 	AdditionalNames []string `json:"additional_names"`
 	LastName        string   `json:"last_name" validate:"required"`
 }
+
+// NameResponse is the response sent back by the service
+type NameResponse struct {
+	Message string `json:"message" validate:"required"`
+}

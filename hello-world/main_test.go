@@ -1,10 +1,13 @@
 package main
 
 import (
+	"encoding/json"
+	"hello-world/data"
 	"net/http"
 	"testing"
 
 	"github.com/aws/aws-lambda-go/events"
+	"gopkg.in/go-playground/validator.v9"
 )
 
 func TestHandler(t *testing.T) {
@@ -53,6 +56,17 @@ func TestHandler(t *testing.T) {
 		}
 		if response.StatusCode != http.StatusCreated {
 			t.Fatal("Response code is not success")
+		}
+		output := new(data.NameResponse)
+		err = json.Unmarshal([]byte(response.Body), &output)
+		if err != nil {
+			t.Fatal("Response not valid JSON")
+		}
+
+		validate := validator.New()
+		err = validate.Struct(output)
+		if err != nil {
+			t.Fatal("Invalid JSON schema")
 		}
 	})
 }
