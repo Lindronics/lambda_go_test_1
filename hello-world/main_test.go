@@ -25,7 +25,21 @@ func TestMain(m *testing.M) {
 	os.Exit(rc)
 }
 
-func TestHandler(t *testing.T) {
+func TestGet(t *testing.T) {
+	t.Run("Status check", func(t *testing.T) {
+		response, err := handler(events.APIGatewayProxyRequest{
+			HTTPMethod: http.MethodGet,
+		})
+		if err != nil {
+			t.Fatal("Error")
+		}
+		if response.StatusCode != http.StatusNotImplemented {
+			t.Fatal("Should return not implemented")
+		}
+	})
+}
+
+func TestPost(t *testing.T) {
 
 	t.Run("Invalid Request JSON", func(t *testing.T) {
 		response, err := handler(events.APIGatewayProxyRequest{
