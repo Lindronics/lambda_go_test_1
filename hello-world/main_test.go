@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"hello-world/data"
 	"net/http"
@@ -23,6 +24,20 @@ func TestMain(m *testing.M) {
 		}
 	}
 	os.Exit(rc)
+}
+
+func TestHandler(t *testing.T) {
+	t.Run("HTTP Request methods check", func(t *testing.T) {
+		response, err := handler(events.APIGatewayProxyRequest{
+			HTTPMethod: http.MethodDelete,
+		})
+		if err != nil {
+			t.Fatal("Error")
+		}
+		if response.StatusCode != http.StatusMethodNotAllowed {
+			t.Fatal("Should return method not allowed")
+		}
+	})
 }
 
 func TestGet(t *testing.T) {
@@ -96,6 +111,18 @@ func TestPost(t *testing.T) {
 		err = validate.Struct(output)
 		if err != nil {
 			t.Fatal("Invalid JSON schema")
+		}
+	})
+}
+
+func TestServerError(t *testing.T) {
+	t.Run("Server error check", func(t *testing.T) {
+		response, err := serverError(errors.New("test error"))
+		if err != nil {
+			t.Fatal("Error")
+		}
+		if response.StatusCode != http.StatusInternalServerError {
+			t.Fatal("HTTP status should be 500")
 		}
 	})
 }
