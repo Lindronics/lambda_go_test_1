@@ -76,9 +76,13 @@ func post(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse
 		return clientError(http.StatusBadRequest)
 	}
 
+	response, err := json.Marshal(data.NameResponse{Message: fmt.Sprintf("Hello, %s %s", input.FirstName, input.LastName)})
+	if err != nil {
+		return serverError(err)
+	}
 	return events.APIGatewayProxyResponse{
 		StatusCode: http.StatusCreated,
-		Body:       fmt.Sprintf("{\"message\": \"Hello, %s %s\"}", input.FirstName, input.LastName),
+		Body:       string(response),
 	}, nil
 }
 
