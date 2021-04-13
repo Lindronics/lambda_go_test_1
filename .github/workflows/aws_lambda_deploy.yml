@@ -1,34 +1,46 @@
 name: "Build and Deploy"
-on:
-  push
+on: push
 jobs:
+  swagger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install
+        run: |
+          dir=$(mktemp -d) 
+          git clone https://github.com/go-swagger/go-swagger "$dir" 
+          cd "$dir"
+          go install ./cmd/swagger
+      - name: Generate model
+        run: make generate_model
   test:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v1
-    - name: Set up Go
-      uses: actions/setup-go@v2
-    - name: Test
-      run: cd hello-world && go test -v -cover .
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Set up Go
+        uses: actions/setup-go@v2
+      - name: Test
+        run: make test
   publish:
     runs-on: ubuntu-latest
-    needs: test
+    needs:
+      - test
+      - swagger
     if: github.ref == 'refs/heads/main'
     steps:
-    - name: sam build
-      uses: TractorZoom/sam-cli-action@master
-      with:
-        sam_command: "build"
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
-    - name: Deploy to AWS
-      uses: TractorZoom/sam-cli-action@master
-      with:
-        sam_command: "deploy --resolve-s3 --region ${{secrets.AWS_REGION}} --no-fail-on-empty-changeset"
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
+      - name: sam build
+        uses: TractorZoom/sam-cli-action@master
+        with:
+          sam_command: "build"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
+      - name: Deploy to AWS
+        uses: TractorZoom/sam-cli-action@master
+        with:
+          sam_command: "deploy --resolve-s3 --region ${{secrets.AWS_REGION}} --no-fail-on-empty-changeset"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}

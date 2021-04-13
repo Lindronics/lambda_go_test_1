@@ -14,6 +14,12 @@ This is a sample template for lambda_go_test_1 - Below is a brief explanation of
 
 ## Requirements
 
+### go-swagger
+
+```bash
+brew install go-swagger
+```
+
 * AWS CLI already configured with Administrator permission
 * [Docker installed](https://www.docker.com/community-edition)
 * [Golang](https://golang.org)

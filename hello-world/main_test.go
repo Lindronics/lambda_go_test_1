@@ -18,7 +18,7 @@ func TestMain(m *testing.M) {
 
 	if rc == 0 && testing.CoverMode() != "" {
 		c := testing.Coverage()
-		if c < 0.8 {
+		if c < 0.7 {
 			fmt.Println("Tests passed but coverage failed at", c)
 			rc = -1
 		}
@@ -89,11 +89,17 @@ func TestPost(t *testing.T) {
 		response, err := handler(events.APIGatewayProxyRequest{
 			HTTPMethod: http.MethodPost,
 			Body: `
-				{
-					"first_name": "asdf",
-					"last_name": "asdf"
-				}
-			`,
+			{
+				"Data": {
+					"ExpirationDateTime": "2021-04-13T21:36:16.318Z",
+					"Permissions": [
+					"ReadAccountsBasic"
+					],
+					"TransactionFromDateTime": "2021-04-13T21:36:16.318Z",
+					"TransactionToDateTime": "2021-04-13T21:36:16.318Z"
+				},
+				"Risk": {}
+			}`,
 		})
 		if err != nil {
 			t.Fatal("Error")
