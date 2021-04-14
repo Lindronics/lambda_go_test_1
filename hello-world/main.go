@@ -2,25 +2,14 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"hello-world/data"
+	"hello-world/data/models"
 	"net/http"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"gopkg.in/go-playground/validator.v9"
-)
-
-var (
-	// DefaultHTTPGetAddress Default Address
-	DefaultHTTPGetAddress = "https://checkip.amazonaws.com"
-
-	// ErrNoIP No IP found in response
-	ErrNoIP = errors.New("No IP in HTTP response")
-
-	// ErrNon200Response non 200 status code in response
-	ErrNon200Response = errors.New("Non 200 Response found")
+	"github.com/go-openapi/strfmt"
 )
 
 func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
@@ -43,8 +32,6 @@ func clientError(status int) (events.APIGatewayProxyResponse, error) {
 }
 
 func serverError(err error) (events.APIGatewayProxyResponse, error) {
-	// errorLogger.Println(err.Error())
-
 	return events.APIGatewayProxyResponse{
 		StatusCode: http.StatusInternalServerError,
 		Body:       http.StatusText(http.StatusInternalServerError),
@@ -64,19 +51,20 @@ func get(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 
 func post(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 
-	input := new(data.Name)
+	input := new(models.OBReadConsent1)
 	err := json.Unmarshal([]byte(request.Body), &input)
 	if err != nil {
 		return clientError(http.StatusBadRequest)
 	}
 
-	validate := validator.New()
-	err = validate.Struct(input)
+	err = input.Validate(strfmt.Default)
 	if err != nil {
 		return clientError(http.StatusBadRequest)
 	}
 
-	response, err := json.Marshal(data.NameResponse{Message: fmt.Sprintf("Hello, %s %s", input.FirstName, input.LastName)})
+	response, err := json.Marshal(data.NameResponse{
+		Message: fmt.Sprintf("Hello, %s %s", input.Data.ExpirationDateTime, input.Data.TransactionFromDateTime),
+	})
 	if err != nil {
 		return serverError(err)
 	}
