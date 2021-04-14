@@ -4,16 +4,25 @@ jobs:
   swagger:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Set up Go
+        uses: actions/setup-go@v2
       - name: Install
         run: |
-          dir=$(mktemp -d) 
-          git clone https://github.com/go-swagger/go-swagger "$dir" 
-          cd "$dir"
-          go install ./cmd/swagger
+          git clone https://github.com/go-swagger/go-swagger
+          cd go-swagger
+          go build -o ../swagger ./cmd/swagger
+      - name: asdf
+        run: |
+          ls -alF
       - name: Generate model
-        run: make generate_model
+        run: |
+          cd hello-world/data; ../../swagger generate model --spec=spec.json
   test:
     runs-on: ubuntu-latest
+    needs:
+      - swagger
     steps:
       - name: Checkout
         uses: actions/checkout@v1
